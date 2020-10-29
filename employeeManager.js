@@ -121,16 +121,66 @@ const delMan = [{
   message: "What is the last name of the manager you wish to delete?",
   name: "delManLast"
 }]
-const editRole = []
-const editDept = []
-const editMan = []
-const editEmp = []
+const editRole = [{
+  type: "input",
+  message: "What role would you like to edit?",
+  name: "editRoleName"
+},{
+  type: "list",
+  message: "What would you like to change about this role?",
+  choices: ["Title", "Salary", "DeptID"],
+  name: "editRoleOld"
+},{
+  type: "input",
+  message: "What would you like to change the value to?",
+  name: "editRoleNew"
+}]
+const editDept = [{
+  type: "input",
+  message: "You can only change the names of departments, enter the old name of the department here:",
+  name: "deptNameOld"
+},{
+  type: "input",
+  message: "Please enter the new name of the department",
+  name: "deptNameNew"
+}]
+const editMan = [{
+  type: "input",
+  message: "Enter the manager's first name: ",
+  name: "editManFirst"
+},{
+  type: "input",
+  message: "Enter the manager's last name: ",
+  name: "editManLast"
+},{
+  type: "list",
+  message: "What would you like to change?",
+  choices: ["First Name", "Last Name", "RoleID"],
+  name: "editManChoice"
+},{
+  type: "input",
+  message: "What woud you like to change the value to?",
+  name: "editManNew"
+}]
+const editEmp = [{
+  type: "input",
+  message: "Please enter the employees first name: ",
+  name: "empEditFirst"
+},{
+  type: "input",
+  message: "Please enter the employees last name: ",
+  name: "empEditLast"
+},{
+  type: "list",
+  message: "What would you like to change?",
+  choices: ["First Name", "Last Name", "RoleID", "ManagerID"],
+  name: "editempChoice"
+},{
+  type: "input",
+  message: "What would you like to change the value to?",
+  name: "editempNew"
+}]
 var sql = "SELECT employee.first_name as FirstName, employee.last_name as LastName, Emprole.title as JobTitle,  Emprole.salary as Salary, CONCAT(manager.first_name, ' ' ,manager.last_name) as Manager FROM employee INNER JOIN manager ON employee.manager_id = manager.role_id INNER JOIN Emprole on employee.role_id = Emprole.id"
-// Bonus points if you're able to:
-//   * Update employee managers
-//   * View employees by manager
-//   * Delete departments, roles, and employees
-//   * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
 function appStart(){
   inquirer.prompt(startQuestion).then(res => {
     switch(res.initialChoice){
@@ -240,11 +290,163 @@ function appStart(){
       case "Edit":
         inquirer.prompt(editQuestion).then(res => {
           switch(res.editChoice){
-            case "Role":
+            case "Roles":
+              inquirer.prompt(editRole).then(res =>{
+                switch(res.editRoleOld){
+                  case "Title":
+                    connection.query(
+                      "UPDATE emprole SET ? WHERE ?",[{
+                        title: res.editRoleNew
+                      },{
+                        title: res.editRoleName
+                      }],function(err, res){
+                        if (err) throw err;
+                        console.log("Role Updated!")
+                        appStart();
+                      }
+                    )
+                  break;
+                  case "Salary":
+                    connection.query(
+                      "UPDATE emprole SET ? WHERE ?",[{
+                        salary: res.editRoleNew
+                      },{
+                        title: res.editRoleName
+                      }],function(err, res){
+                        if (err) throw err;
+                        console.log("Role Updated!")
+                        appStart();
+                      }
+                    )
+                  break;
+                  case "DeptID":
+                    connection.query(
+                      "UPDATE emprole SET ? WHERE ?",[{
+                        department_id: res.editRoleNew
+                      },{
+                        title: res.editRoleName
+                      }],function(err, res){
+                        if (err) throw err;
+                        console.log("Role Updated!")
+                        appStart();
+                      }
+                    )
+                  break;
+                }
+              })
             break;
-            case "Department":
+            case "Departments":
+              inquirer.prompt(editDept).then(res => {
+                connection.query(
+                  "UPDATE departments SET ? WHERE ?",
+                  [
+                    {
+                      deptName: res.deptNameNew
+                    },{
+                      deptName: res.deptNameOld
+                    }
+                  ],function(err, res){
+                    if (err) throw err;
+                    console.log("Department Updated!")
+                    appStart();
+                  }
+                )
+              })
             break;
-            case "Employee":
+            case "Employees":
+              inquirer.prompt(emporMan).then(response => {
+                switch(response.emporManChoice){
+                  case "Employee":
+                    inquirer.prompt(editEmp).then(res => {
+                      switch(res.editempChoice){
+                        case "First Name":
+                          connection.query(
+                            "UPDATE employee SET first_name = ? WHERE first_name = ? AND last_name = ?",
+                            [res.editempNew,res.empEditFirst,res.empEditLast],
+                            function(err, res) {
+                              if (err) throw err;
+                              console.log("Employee Updated!")
+                              appStart()
+                            }
+                          )
+                        break;
+                        case "Last Name":
+                          connection.query(
+                            "UPDATE employee SET last_name = ? WHERE first_name = ? AND last_name = ?",
+                            [res.editempNew,res.empEditFirst,res.empEditLast],
+                            function(err, res) {
+                              if (err) throw err;
+                              console.log("Employee Updated!")
+                              appStart()
+                            }
+                          )
+                        break;
+                        case "RoleID":
+                          connection.query(
+                            "UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?",
+                            [res.editempNew,res.empEditFirst,res.empEditLast],
+                            function(err, res) {
+                              if (err) throw err;
+                              console.log("Employee Updated!")
+                              appStart()
+                            }
+                          )
+                        break;
+                        case "ManagerID":
+                          connection.query(
+                            "UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?",
+                            [res.editempNew,res.empEditFirst,res.empEditLast],
+                            function(err, res) {
+                              if (err) throw err;
+                              console.log("Employee Updated!")
+                              appStart()
+                            }
+                          )
+                        break;
+                      }
+                    })
+                  break;
+                  case "Manager":
+                    inquirer.prompt(editMan).then(res => {
+                      switch(res.editManChoice){
+                        case "First Name":
+                          connection.query(
+                            "UPDATE manager SET first_name = ? WHERE first_name = ? AND last_name = ?",
+                            [res.editManNew,res.editManFirst,res.editManLast],
+                            function(err, res) {
+                              if (err) throw err;
+                              console.log("Employee Updated!")
+                              appStart()
+                            }
+                          )
+                        break;
+                        case "Last Name":
+                          connection.query(
+                            "UPDATE manager SET last_name = ? WHERE first_name = ? AND last_name = ?",
+                            [res.editManNew,res.editManFirst,res.editManLast],
+                            function(err, res) {
+                              if (err) throw err;
+                              console.log("Employee Updated!")
+                              appStart()
+                            }
+                          )
+                        break;
+                        case "RoleID":
+                          connection.query(
+                            "UPDATE manager SET role_id = ? WHERE first_name = ? AND last_name = ?",
+                            [res.editManNew,res.editManFirst,res.editManLast],
+                            function(err, res) {
+                              if (err) throw err;
+                              console.log("Employee Updated!")
+                              appStart()
+                            }
+                          )
+                        break;
+                      }
+                    })
+                  break;
+                }
+              })
             break;
           }
         })
