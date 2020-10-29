@@ -93,6 +93,38 @@ const addDeptQ = [{
   message: "What is the name of the new department?",
   name: "addDept"
 }]
+const delDept = [{
+  type: "input",
+  message: "What department would you like to remove?",
+  name: "delDeptName"
+}]
+const delRole =[{
+  type: "input",
+  message: "What Role would you like to remove?",
+  name: "delRoleName"
+}]
+const delEmp =[{
+  type: "input",
+  message: "What is the first name of the employee you wish to delete?",
+  name: "delempFirst"
+},{
+  type: "input",
+  message: "What is the last name of the employee you wish to delete?",
+  name: "delempLast"
+}]
+const delMan = [{
+  type: "input",
+  message: "What is the first name of the manager you wish to delete?",
+  name: "delManFirst"
+},{
+  type: "input",
+  message: "What is the last name of the manager you wish to delete?",
+  name: "delManLast"
+}]
+const editRole = []
+const editDept = []
+const editMan = []
+const editEmp = []
 var sql = "SELECT employee.first_name as FirstName, employee.last_name as LastName, Emprole.title as JobTitle,  Emprole.salary as Salary, CONCAT(manager.first_name, ' ' ,manager.last_name) as Manager FROM employee INNER JOIN manager ON employee.manager_id = manager.role_id INNER JOIN Emprole on employee.role_id = Emprole.id"
 // Bonus points if you're able to:
 //   * Update employee managers
@@ -207,12 +239,81 @@ function appStart(){
       return;
       case "Edit":
         inquirer.prompt(editQuestion).then(res => {
-
+          switch(res.editChoice){
+            case "Role":
+            break;
+            case "Department":
+            break;
+            case "Employee":
+            break;
+          }
         })
       return;
       case "Remove":
         inquirer.prompt(removeQuestion).then(res => {
-
+          switch(res.removeChoice){
+            case "Departments":
+              inquirer.prompt(delDept).then(res => {
+                connection.query(
+                  "DELETE FROM departments WHERE deptName = ?",
+                  [res.delDeptName],function(err, res){
+                    if (err) throw err;
+                    console.log("Department deleted succesfully!")
+                    appStart()
+                  }
+                )
+              })
+            break;
+            case "Roles":
+              inquirer.prompt(delRole).then(res => {
+                connection.query(
+                  "DELETE FROM emprole WHERE title = ?",
+                  [res.delRoleName],function(err, res){
+                    if (err) throw err;
+                    console.log("Role deleted succesfully!")
+                    appStart()
+                  }
+                )
+              })
+            break;
+            case "Employees":
+              inquirer.prompt(emporMan).then(response => {
+                switch(response.emporManChoice){
+                  case "Employee":
+                    inquirer.prompt(delEmp).then(res => {
+                      connection.query(
+                        "DELETE FROM employee WHERE first_name = ? AND last_name = ?",
+                        [
+                          res.delempFirst,
+                          res.delempLast,
+                        ],function(err, res) {
+                          if (err) throw err;
+                          console.log("Employee deleted successfully!")
+                          appStart()
+                        }
+                      )
+                    })
+                  break;
+                  case "Manager":
+                    inquirer.prompt(delMan).then(res => {
+                    var  todeleteFirst = res.delManFirst
+                    var  todeleteLast = res.delManLast
+                      connection.query(
+                        "DELETE FROM manager WHERE first_name = ? AND last_name = ?",
+                        [todeleteFirst,
+                        todeleteLast]
+                        ,function(err, res) {
+                          if (err) throw err;
+                          console.log("Manager deleted successfully!")
+                          appStart()
+                        }
+                      )
+                    })
+                    break;
+                }
+              });
+            break;
+          }
         })
       return;
       case "Close App":
